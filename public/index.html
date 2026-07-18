@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyDocumentVault</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <div>
+          <p class="eyebrow">Secure vault</p>
+          <h1>MyDocumentVault</h1>
+        </div>
+        <div class="auth-actions" id="authActions">
+          <button id="logoutBtn" class="secondary hidden">Logout</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="authSection" class="card">
+          <h2>Access your vault</h2>
+          <form id="authForm" class="stack">
+            <input id="username" placeholder="Username" />
+            <input id="email" type="email" placeholder="Email" />
+            <input id="password" type="password" placeholder="Password" />
+            <div class="row">
+              <button id="registerBtn" type="button">Register</button>
+              <button id="loginBtn" type="button" class="secondary">Login</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="vaultSection" class="card hidden">
+          <h2>Upload a document</h2>
+          <form id="uploadForm" class="stack">
+            <input id="docTitle" placeholder="Document title" />
+            <textarea id="docDescription" placeholder="Optional description"></textarea>
+            <input id="docFile" type="file" />
+            <button type="submit">Upload</button>
+          </form>
+
+          <div id="documentList" class="document-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
