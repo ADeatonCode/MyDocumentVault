@@ -2,11 +2,13 @@
 
 A secure document vault starter built with HTML, CSS, JavaScript, Node.js, Express, and MongoDB.
 
+The problem is having to carry important documents to job interviews.  The solution storing the documents in a digital form that is accessable to the user on a tablet or smartphone.
+
 ## Features
 - User registration and login with JWT authentication
 - Secure password hashing with bcrypt
 - File upload and listing for authenticated users
-- MongoDB-backed document metadata storage
+- MongoDB-backed document metadata storage (Arrays used for the demo)
 - Basic rate limiting and helmet security headers
 
 ## Setup
@@ -18,4 +20,4 @@ A secure document vault starter built with HTML, CSS, JavaScript, Node.js, Expre
 ## Notes
 - The frontend is served from the Express app at `http://localhost:5000`.
 - Uploaded files are stored in the `uploads` directory.
-- https://adeatoncode.github.io/MyDocumentVault/
+- Demo link: https://adeatoncode.github.io/MyDocumentVault/
