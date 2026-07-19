@@ -1,6 +1,7 @@
 # MyDocumentVault
 
 MyDocumentVault is a simple document vault demo that now runs as a browser-based experience for GitHub hosting.
+The problem is carrying documents to job interviews.  This app improves that by alowing you to upload the documents into a digital vault that can be accessed anywhere.
 
 ## What changed
 
