@@ -1,5 +1,7 @@
 // This file controls what the website shows and does.
 // It helps people sign in, upload files, and see their saved documents.
+// The original backend fetch calls are disabled here in favor of a simple
+// browser-only demo that uses arrays stored in localStorage.
 const state = { token: localStorage.getItem('token') || '', user: null };
 
 const authSection = document.getElementById('authSection');
@@ -8,34 +10,42 @@ const logoutBtn = document.getElementById('logoutBtn');
 const authForm = document.getElementById('authForm');
 const uploadForm = document.getElementById('uploadForm');
 const documentList = document.getElementById('documentList');
+const storageKey = 'documentVaultDemoData';
 
-// Show the right part of the page depending on whether the user is logged in.
+function loadDemoData() {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved) : { users: [], documents: [] };
+  } catch (error) {
+    console.warn('Unable to read demo data, resetting it.', error);
+    return { users: [], documents: [] };
+  }
+}
+
+function saveDemoData(data) {
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
+let demoData = loadDemoData();
+
 function toggleViews() {
   authSection.classList.toggle('hidden', !!state.token);
   vaultSection.classList.toggle('hidden', !state.token);
   logoutBtn.classList.toggle('hidden', !state.token);
 }
 
-// Check if the saved login token is still good.
-async function loadUser() {
+function loadUser() {
   if (!state.token) {
     toggleViews();
     return;
   }
 
-  try {
-    const response = await fetch('/api/auth/me', {
-      headers: { Authorization: `Bearer ${state.token}` }
-    });
-
-    if (!response.ok) {
-      throw new Error('Unauthorized');
-    }
-
-    state.user = await response.json();
+  const user = demoData.users.find((entry) => entry.token === state.token);
+  if (user) {
+    state.user = user;
     toggleViews();
     loadDocuments();
-  } catch (error) {
+  } else {
     localStorage.removeItem('token');
     state.token = '';
     state.user = null;
@@ -43,99 +53,128 @@ async function loadUser() {
   }
 }
 
-// Sign up or log in by sending the form data to the server.
-async function handleAuth(action) {
+function handleAuth(action) {
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
 
-  const payload = action === 'register' ? { username, email, password } : { email, password };
-
-  const response = await fetch(`/api/auth/${action}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    alert(data.message || 'Authentication failed');
+  if (!email || !password || (action === 'register' && !username)) {
+    alert('Please complete the form before continuing.');
     return;
   }
 
-  localStorage.setItem('token', data.token);
-  state.token = data.token;
-  state.user = data.user;
+  if (action === 'register') {
+    const existingUser = demoData.users.find((entry) => entry.email === email || entry.username === username);
+    if (existingUser) {
+      alert('That username or email is already in use.');
+      return;
+    }
+
+    const user = {
+      id: `user-${Date.now()}`,
+      username,
+      email,
+      password
+    };
+
+    const token = `demo-${Date.now()}`;
+    user.token = token;
+    demoData.users.push(user);
+    saveDemoData(demoData);
+
+    localStorage.setItem('token', token);
+    state.token = token;
+    state.user = user;
+    toggleViews();
+    loadDocuments();
+    return;
+  }
+
+  const user = demoData.users.find((entry) => entry.email === email && entry.password === password);
+  if (!user) {
+    alert('Invalid email or password.');
+    return;
+  }
+
+  const token = `demo-${Date.now()}`;
+  user.token = token;
+  saveDemoData(demoData);
+
+  localStorage.setItem('token', token);
+  state.token = token;
+  state.user = user;
   toggleViews();
   loadDocuments();
 }
 
-// Ask the server for the current user's documents and show them on the page.
-async function loadDocuments() {
-  if (!state.token) return;
+function loadDocuments() {
+  if (!state.token || !state.user) return;
 
-  const response = await fetch('/api/documents', {
-    headers: { Authorization: `Bearer ${state.token}` }
-  });
-
-  const documents = await response.json();
-  if (!response.ok) return;
+  const documents = demoData.documents.filter((doc) => doc.userId === state.user.id);
 
   documentList.innerHTML = documents.length
-    ? documents.map((doc) => `
-        <div class="document-item">
-          <div>
-            <strong>${doc.title}</strong>
-            <div>${doc.originalName}</div>
+    ? documents
+        .map((doc) => `
+          <div class="document-item">
+            <div>
+              <strong>${doc.title}</strong>
+              <div>${doc.originalName}</div>
+            </div>
+            <div>
+              ${doc.fileData ? `<a href="${doc.fileData}" target="_blank">Open</a>` : '<span>Stored locally</span>'}
+              <button class="secondary" data-id="${doc.id}" onclick="deleteDocument('${doc.id}')">Delete</button>
+            </div>
           </div>
-          <div>
-            <a href="/uploads/${doc.filename}" target="_blank">Open</a>
-            <button class="secondary" data-id="${doc._id}" onclick="deleteDocument('${doc._id}')">Delete</button>
-          </div>
-        </div>
-      `).join('')
+        `)
+        .join('')
     : '<p>No documents yet.</p>';
 }
 
-// Delete one document when the user clicks the delete button.
-async function deleteDocument(id) {
-  const response = await fetch(`/api/documents/${id}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${state.token}` }
-  });
-
-  if (response.ok) {
-    loadDocuments();
-  }
+function deleteDocument(id) {
+  demoData.documents = demoData.documents.filter((doc) => doc.id !== id);
+  saveDemoData(demoData);
+  loadDocuments();
 }
 
 window.deleteDocument = deleteDocument;
 
-// When the upload form is sent, send the file to the server.
-uploadForm.addEventListener('submit', async (event) => {
+uploadForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  const formData = new FormData();
-  formData.append('title', document.getElementById('docTitle').value.trim());
-  formData.append('description', document.getElementById('docDescription').value.trim());
-  formData.append('file', document.getElementById('docFile').files[0]);
+  if (!state.token || !state.user) {
+    alert('Please sign in first.');
+    return;
+  }
 
-  const response = await fetch('/api/documents', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${state.token}` },
-    body: formData
-  });
+  const title = document.getElementById('docTitle').value.trim();
+  const description = document.getElementById('docDescription').value.trim();
+  const file = document.getElementById('docFile').files[0];
 
-  if (response.ok) {
+  if (!title || !file) {
+    alert('Please add a title and choose a file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const documentEntry = {
+      id: `doc-${Date.now()}`,
+      title,
+      description,
+      originalName: file.name,
+      fileData: reader.result,
+      userId: state.user.id
+    };
+
+    demoData.documents.push(documentEntry);
+    saveDemoData(demoData);
     uploadForm.reset();
     loadDocuments();
-  } else {
-    const data = await response.json();
-    alert(data.message || 'Upload failed');
-  }
+  };
+
+  reader.readAsDataURL(file);
 });
 
-// Connect the buttons to the right actions.
 document.getElementById('registerBtn').addEventListener('click', () => handleAuth('register'));
 document.getElementById('loginBtn').addEventListener('click', () => handleAuth('login'));
 logoutBtn.addEventListener('click', () => {
