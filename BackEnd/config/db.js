@@ -1,3 +1,5 @@
+// This file connects the app to the database.
+// If no real database is available, it can use a temporary one for testing.
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 

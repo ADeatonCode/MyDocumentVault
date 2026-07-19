@@ -1,9 +1,11 @@
+// This file handles signing up, logging in, and checking who is logged in.
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const router = express.Router();
 
+// Create a new account for a user.
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -26,6 +28,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Let an existing user log in and get a secret token.
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -52,6 +55,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Check the logged-in user's info using the secret token.
 router.get('/me', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -1,3 +1,5 @@
+// This file starts the web server for the document vault.
+// It connects the database, handles web requests, and serves the website.
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -6,6 +8,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Load the helper files that run the login system and document actions.
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const documentRoutes = require('./routes/documents');
@@ -26,11 +29,14 @@ app.use(
   })
 );
 
+// Connect to the database when the server starts.
 connectDB();
 
+// Let visitors download uploaded files and show the website pages.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'FrontEnd', 'public')));
 
+// A simple health check so we can tell the server is awake.
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'MyDocumentVault API is running' });
 });
@@ -39,7 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 
 app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'FrontEnd', 'public', 'index.html'));
 });
 
 app.use((err, _req, res, _next) => {

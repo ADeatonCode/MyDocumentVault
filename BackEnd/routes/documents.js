@@ -1,3 +1,4 @@
+// This file handles saving, listing, and deleting documents.
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -7,6 +8,7 @@ const Document = require('../models/Document');
 
 const router = express.Router();
 
+// Tell the app where to put uploaded files on the computer.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '..', 'uploads'));
@@ -17,6 +19,7 @@ const storage = multer.diskStorage({
   }
 });
 
+// Make the upload tool ready to use.
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -25,6 +28,7 @@ const upload = multer({
   }
 });
 
+// Show all documents that belong to the current user.
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const documents = await Document.find({ user: req.user._id }).sort({ uploadedAt: -1 });
@@ -34,6 +38,7 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+// Save a new uploaded file and remember its details.
 router.post('/', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -56,6 +61,7 @@ router.post('/', authMiddleware, upload.single('file'), async (req, res) => {
   }
 });
 
+// Remove a document and delete the matching file from storage.
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const document = await Document.findOne({ _id: req.params.id, user: req.user._id });

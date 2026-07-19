@@ -1,3 +1,5 @@
+// This file controls what the website shows and does.
+// It helps people sign in, upload files, and see their saved documents.
 const state = { token: localStorage.getItem('token') || '', user: null };
 
 const authSection = document.getElementById('authSection');
@@ -7,12 +9,14 @@ const authForm = document.getElementById('authForm');
 const uploadForm = document.getElementById('uploadForm');
 const documentList = document.getElementById('documentList');
 
+// Show the right part of the page depending on whether the user is logged in.
 function toggleViews() {
   authSection.classList.toggle('hidden', !!state.token);
   vaultSection.classList.toggle('hidden', !state.token);
   logoutBtn.classList.toggle('hidden', !state.token);
 }
 
+// Check if the saved login token is still good.
 async function loadUser() {
   if (!state.token) {
     toggleViews();
@@ -39,6 +43,7 @@ async function loadUser() {
   }
 }
 
+// Sign up or log in by sending the form data to the server.
 async function handleAuth(action) {
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -65,6 +70,7 @@ async function handleAuth(action) {
   loadDocuments();
 }
 
+// Ask the server for the current user's documents and show them on the page.
 async function loadDocuments() {
   if (!state.token) return;
 
@@ -91,6 +97,7 @@ async function loadDocuments() {
     : '<p>No documents yet.</p>';
 }
 
+// Delete one document when the user clicks the delete button.
 async function deleteDocument(id) {
   const response = await fetch(`/api/documents/${id}`, {
     method: 'DELETE',
@@ -104,6 +111,7 @@ async function deleteDocument(id) {
 
 window.deleteDocument = deleteDocument;
 
+// When the upload form is sent, send the file to the server.
 uploadForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -127,6 +135,7 @@ uploadForm.addEventListener('submit', async (event) => {
   }
 });
 
+// Connect the buttons to the right actions.
 document.getElementById('registerBtn').addEventListener('click', () => handleAuth('register'));
 document.getElementById('loginBtn').addEventListener('click', () => handleAuth('login'));
 logoutBtn.addEventListener('click', () => {

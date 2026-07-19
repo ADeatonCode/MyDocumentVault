@@ -1,3 +1,4 @@
+// This file checks whether a user has a valid login token.
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 

@@ -1,3 +1,5 @@
+// This file tells the database what a saved document looks like.
+// It stores the file name, owner, and extra details about the file.
 const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({

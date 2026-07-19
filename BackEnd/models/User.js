@@ -1,3 +1,5 @@
+// This file tells the database what a user looks like.
+// It also keeps passwords hidden and safe before saving them.
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
