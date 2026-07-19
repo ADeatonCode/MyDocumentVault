@@ -1,7 +1,8 @@
 // This file controls what the website shows and does.
 // It helps people sign in, upload files, and see their saved documents.
-// The original backend fetch calls are disabled here in favor of a simple
-// browser-only demo that uses arrays stored in localStorage.
+// Demo note: the original backend API calls were removed from this version.
+// Added for the demo: a browser-only flow that stores users and documents
+// in localStorage using simple arrays instead of a database.
 const state = { token: localStorage.getItem('token') || '', user: null };
 
 const authSection = document.getElementById('authSection');
@@ -10,8 +11,10 @@ const logoutBtn = document.getElementById('logoutBtn');
 const authForm = document.getElementById('authForm');
 const uploadForm = document.getElementById('uploadForm');
 const documentList = document.getElementById('documentList');
+// Demo addition: local storage key for the sample users and documents.
 const storageKey = 'documentVaultDemoData';
 
+// Demo addition: load the in-browser demo data from localStorage.
 function loadDemoData() {
   try {
     const saved = localStorage.getItem(storageKey);
@@ -22,10 +25,13 @@ function loadDemoData() {
   }
 }
 
+// Demo addition: save the in-browser demo data back to localStorage.
 function saveDemoData(data) {
   localStorage.setItem(storageKey, JSON.stringify(data));
 }
 
+// Demo addition: the app now uses an in-memory array-style data object
+// populated from localStorage for the demo experience.
 let demoData = loadDemoData();
 
 function toggleViews() {
