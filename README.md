@@ -11,6 +11,11 @@ This version has been modified for demo purposes so it does not depend on a live
 - upload demo documents
 - view and delete uploaded items
 
+## Upcomming Features
+
+- add 3D vault door to login page.
+- add more document organization for easier access
+
 ## How to view it
 
 Open the site directly from the frontend files in this repository, or host the project as a static site.
