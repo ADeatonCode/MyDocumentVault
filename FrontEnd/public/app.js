@@ -3,6 +3,8 @@
 // Demo note: the original backend API calls were removed from this version.
 // Added for the demo: a browser-only flow that stores users and documents
 // in localStorage using simple arrays instead of a database.
+// To restore the backend version later, comment out the demo-only sections below
+// and uncomment the older fetch-based handlers that call /api/auth and /api/documents.
 const state = { token: localStorage.getItem('token') || '', user: null };
 
 const authSection = document.getElementById('authSection');
@@ -32,6 +34,8 @@ function saveDemoData(data) {
 
 // Demo addition: the app now uses an in-memory array-style data object
 // populated from localStorage for the demo experience.
+// Backend restore note: if you want the real backend again, comment out this
+// demo data block and uncomment the older fetch-based auth/document logic below.
 let demoData = loadDemoData();
 
 function toggleViews() {
@@ -40,6 +44,9 @@ function toggleViews() {
   logoutBtn.classList.toggle('hidden', !state.token);
 }
 
+// Demo version: this function uses local demo data.
+// Backend restore note: comment out this demo function and uncomment the older
+// version that uses fetch('/api/auth/me') with a Bearer token.
 function loadUser() {
   if (!state.token) {
     toggleViews();
@@ -59,6 +66,9 @@ function loadUser() {
   }
 }
 
+// Demo version: this function uses local demo data.
+// Backend restore note: comment out this demo function and uncomment the older
+// version that uses fetch(`/api/auth/${action}`) for register/login.
 function handleAuth(action) {
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -113,6 +123,9 @@ function handleAuth(action) {
   loadDocuments();
 }
 
+// Demo version: this function reads from the local demo arrays.
+// Backend restore note: comment out this demo function and uncomment the older
+// version that calls fetch('/api/documents') and renders the server response.
 function loadDocuments() {
   if (!state.token || !state.user) return;
 
@@ -136,6 +149,9 @@ function loadDocuments() {
     : '<p>No documents yet.</p>';
 }
 
+// Demo version: this function removes documents from the local demo array.
+// Backend restore note: comment out this demo function and uncomment the older
+// version that calls fetch(`/api/documents/${id}`, { method: 'DELETE' }).
 function deleteDocument(id) {
   demoData.documents = demoData.documents.filter((doc) => doc.id !== id);
   saveDemoData(demoData);
@@ -144,6 +160,9 @@ function deleteDocument(id) {
 
 window.deleteDocument = deleteDocument;
 
+// Demo version: this upload handler stores files in browser memory via FileReader.
+// Backend restore note: comment out this demo handler and uncomment the older
+// version that sends FormData to /api/documents with a Bearer token.
 uploadForm.addEventListener('submit', (event) => {
   event.preventDefault();
 

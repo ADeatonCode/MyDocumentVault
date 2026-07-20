@@ -56,3 +56,6 @@ python -m http.server 8000
 
 The test link is:
 
+README review note: this README file was reviewed and modified for the final edition of the project.
+
+demo link: https://adeatoncode.github.io/MyDocumentVault/FrontEnd/public/index.html
